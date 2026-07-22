@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 
+	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -16,11 +17,6 @@ func NewDatabase(config *viper.Viper, log *logrus.Logger) *gorm.DB {
 	port := config.GetInt("database.port")
 	dbname := config.GetString("database.dbname")
 	sslmode := config.GetString("database.sslmode")
-
-	fmt.Println("Host    :", config.GetString("database.host"))
-	fmt.Println("Port    :", config.GetInt("database.port"))
-	fmt.Println("DB Name :", config.GetString("database.dbname"))
-	fmt.Println("User    :", config.GetString("database.user"))
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Jakarta",
@@ -36,6 +32,16 @@ func NewDatabase(config *viper.Viper, log *logrus.Logger) *gorm.DB {
 
 	if err != nil {
 		log.Fatalf("failed to connect database : %v", err)
+	}
+
+	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
+
+	if err := db.AutoMigrate(
+		&entity.User{},
+		&entity.Member{},
+		&entity.Address{},
+	); err != nil {
+		log.Fatalf("Failed to migrate database : %v", err)
 	}
 
 	log.Info("success connect to database")
