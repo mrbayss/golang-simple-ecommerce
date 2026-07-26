@@ -13,7 +13,7 @@ type Key struct {
 }
 
 func NewJWTToken(config *viper.Viper) *Key {
-	sekretKey := config.GetString("jwt.secretkey")
+	sekretKey := config.GetString("jwt.secret_key")
 	return &Key{
 		SecretKey: sekretKey,
 	}
@@ -26,7 +26,7 @@ func (key *Key) GenerateToken(userId, email, role string, duration time.Duration
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedString, err := token.SignedString(key.SecretKey)
+	signedString, err := token.SignedString([]byte(key.SecretKey))
 	if err != nil {
 		return "", nil, err
 	}
@@ -41,7 +41,7 @@ func (key *Key) VerifyToken(tokenString string) (*UserClaims, error) {
 			return nil, fiber.NewError(fiber.StatusInternalServerError, "Unexpected sign methods")
 		}
 
-		return key.SecretKey, nil
+		return []byte(key.SecretKey), nil
 	})
 
 	if err != nil {

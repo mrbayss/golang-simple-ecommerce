@@ -20,15 +20,15 @@ func NewAuthController(log *logrus.Logger, authService service.AuthService) *Aut
 	}
 }
 
-func (c *AuthController) Register(ctx fiber.Ctx) error {
+func (ac *AuthController) Register(ctx fiber.Ctx) error {
 	var request model.RegisterReq
 
 	if err := ctx.Bind().Body(&request); err != nil {
-		c.Log.Warnf("failed to parse body: %v", err)
+		ac.Log.Warnf("failed to parse body: %v", err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
 	}
 
-	if err := c.AuthService.Register(ctx, &request); err != nil {
+	if err := ac.AuthService.Register(ctx, &request); err != nil {
 		message, code, validationErrors := utils.HandleError(err, utils.ErrorParams{Object: request.Email})
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
@@ -36,4 +36,24 @@ func (c *AuthController) Register(ctx fiber.Ctx) error {
 	return ctx.Status(fiber.StatusCreated).JSON(
 		model.SuccessResponse(nil, "Registrasi berhasil"),
 	)
+}
+
+func (ac *AuthController) Login(ctx fiber.Ctx) error {
+	var request model.LoginReq
+
+	if err := ctx.Bind().Body(&request); err != nil {
+		ac.Log.Warnf("failed to parse body: %v", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+	}
+
+	res, err := ac.AuthService.Login(ctx, &request)
+	if err != nil {
+		message, code, validationErrors := utils.HandleError(err)
+		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
+	}
+
+	return ctx.Status(fiber.StatusCreated).JSON(
+		model.SuccessResponse(res, "login success"),
+	)
+
 }

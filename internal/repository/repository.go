@@ -13,6 +13,7 @@ type Repository[T any] interface {
 	Delete(db *gorm.DB, id string) error
 	SoftDelete(db *gorm.DB, id string) error
 	GetAll(db *gorm.DB) ([]T, error)
+	GetByColumn(db *gorm.DB, column string, value any) (*T, error)
 }
 
 type RepositoryImpl[T any] struct{}
@@ -55,4 +56,9 @@ func (r *RepositoryImpl[T]) GetAll(db *gorm.DB) ([]T, error) {
 func (r *RepositoryImpl[T]) SoftDelete(db *gorm.DB, id string) error {
 	return db.Model(new(T)).Where("id = ?", id).Update("deleted_at", time.Now().Unix()).Error
 
+}
+
+func (r *RepositoryImpl[T]) GetByColumn(db *gorm.DB, column string, value any) (*T, error) {
+	var t T
+	return &t, db.Where(map[string]any{column: value}).First(&t).Error
 }
