@@ -3,8 +3,8 @@ package controller
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/apperror"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/service"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +29,7 @@ func (ac *AuthController) Register(ctx fiber.Ctx) error {
 	}
 
 	if err := ac.AuthService.Register(ctx, &request); err != nil {
-		message, code, validationErrors := utils.HandleError(err, utils.ErrorParams{Object: request.Email})
+		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: request.Email})
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
@@ -48,7 +48,7 @@ func (ac *AuthController) Login(ctx fiber.Ctx) error {
 
 	res, err := ac.AuthService.Login(ctx, &request)
 	if err != nil {
-		message, code, validationErrors := utils.HandleError(err)
+		message, code, validationErrors := apperror.HandleError(err)
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 

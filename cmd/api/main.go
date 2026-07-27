@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mrbayss/golang-simple-ecommerce/internal/config"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/utils/token"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/jwt"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	db := config.NewDatabase(cfg, log)
 	validate := config.NewValidator(cfg)
 	app := config.NewFiber(cfg, log)
-	jwt := token.NewJWTToken(cfg)
+	jwt := jwt.NewJWTToken(cfg)
 	redis := config.NewRedis(cfg)
 
 	config.Bootstrap(&config.BootstrapConfig{

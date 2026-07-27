@@ -4,10 +4,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/controller"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/jwt"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/route"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/service"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/utils/token"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -20,7 +20,7 @@ type BootstrapConfig struct {
 	Log       *logrus.Logger
 	Validator *validator.Validate
 	Config    *viper.Viper
-	Jwt       *token.Key
+	Jwt       *jwt.Key
 	Redis     *redis.Client
 }
 

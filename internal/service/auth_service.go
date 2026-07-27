@@ -2,16 +2,15 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/apperror"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/jwt"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/utils"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/utils/token"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -27,10 +26,10 @@ type authService struct {
 	UserRepository repository.UserRepository
 	Log            *logrus.Logger
 	Validate       *validator.Validate
-	Jwt            *token.Key
+	Jwt            *jwt.Key
 }
 
-func NewAuthService(db *gorm.DB, userRepository repository.UserRepository, log *logrus.Logger, validate *validator.Validate, jwt *token.Key) AuthService {
+func NewAuthService(db *gorm.DB, userRepository repository.UserRepository, log *logrus.Logger, validate *validator.Validate, jwt *jwt.Key) AuthService {
 	return &authService{
 		DB:             db,
 		UserRepository: userRepository,
@@ -51,7 +50,7 @@ func (as *authService) Register(c context.Context, request *model.RegisterReq) e
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		as.Log.Errorf("failed to bcrypt password: %v", err)
-		return utils.NewAppError(http.StatusInternalServerError, "failed to generate hasing password")
+		return apperror.NewAppError(fiber.StatusInternalServerError, "failed to generate hasing password")
 	}
 
 	create := &entity.User{
@@ -81,18 +80,18 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 	user, err := as.UserRepository.FindByEmail(ctx, request.Email)
 	if err != nil {
 		as.Log.Errorf("failed to find by email: %v", err)
-		return nil, utils.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
+		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		as.Log.Errorf("failed to compare password: %v", err)
-		return nil, utils.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
+		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
 	}
 
 	accessToken, accessClaims, err := as.Jwt.GenerateToken(user.ID.String(), user.Email, string(entity.AdminRole), time.Hour*24)
 	if err != nil {
 		as.Log.Errorf("failed to generate token: %v", err)
-		return nil, utils.NewAppError(fiber.StatusInternalServerError, "failed to generate token")
+		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "failed to generate token")
 	}
 
 	response := &model.TokenRes{
