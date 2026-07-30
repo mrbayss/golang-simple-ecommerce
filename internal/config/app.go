@@ -31,9 +31,12 @@ func Bootstrap(config *BootstrapConfig) {
 
 	authController := controller.NewAuthController(config.Log, authService)
 
+	healthController := controller.NewHealthController(config.Log, config.DB, config.Redis)
+
 	routeConfig := &route.RouteConfig{
-		App:            config.App,
-		AuthController: authController,
+		App:              config.App,
+		AuthController:   authController,
+		HealthController: healthController,
 	}
 
 	routeConfig.Setup()

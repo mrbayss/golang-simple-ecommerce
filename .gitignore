@@ -1,2 +1,30 @@
 /config.yaml
 /logs/
+/main
+/AGENTS.md
+/docs/TASK_LIST.md
+
+.env.local
+*.db
+*.sqlite
+*.sqlite3
+
+# compiled binary
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

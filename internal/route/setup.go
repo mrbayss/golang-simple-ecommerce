@@ -11,7 +11,12 @@ func (c *RouteConfig) Setup() {
 		})
 	})
 
+	c.App.Get("/health/live", c.HealthController.Healthz)
+	c.App.Get("/health/ready", c.HealthController.Readyz)
+
 	api := c.App.Group("/api/v1")
+
+	api.Get("/health", c.HealthController.Check)
 
 	c.SetupAuthRoute(api)
 }

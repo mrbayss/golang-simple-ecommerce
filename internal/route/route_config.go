@@ -6,6 +6,7 @@ import (
 )
 
 type RouteConfig struct {
-	App            *fiber.App
-	AuthController *controller.AuthController
+	App              *fiber.App
+	AuthController   *controller.AuthController
+	HealthController *controller.HealthController
 }

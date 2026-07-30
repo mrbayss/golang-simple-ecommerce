@@ -84,8 +84,8 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		as.Log.Errorf("failed to compare password: %v", err)
-		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
+		as.Log.Warnf("failed to compare password for %s: %v", request.Email, err)
+		return nil, apperror.NewAppError(fiber.StatusUnauthorized, "email atau password salah")
 	}
 
 	accessToken, accessClaims, err := as.Jwt.GenerateToken(user.ID.String(), user.Email, string(entity.AdminRole), time.Hour*24)
