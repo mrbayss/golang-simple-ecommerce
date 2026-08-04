@@ -19,4 +19,5 @@ func (c *RouteConfig) Setup() {
 	api.Get("/health", c.HealthController.Check)
 
 	c.SetupAuthRoute(api)
+	c.SetupCategoryRoute(api)
 }

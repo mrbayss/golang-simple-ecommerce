@@ -42,6 +42,7 @@ func NewDatabase(config *viper.Viper, log *logrus.Logger) *gorm.DB {
 		&entity.User{},
 		&entity.Member{},
 		&entity.Address{},
+		&entity.Category{},
 	); err != nil {
 		log.Fatalf("Failed to migrate database : %v", err)
 	}

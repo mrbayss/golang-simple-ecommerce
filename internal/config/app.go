@@ -26,17 +26,27 @@ type BootstrapConfig struct {
 
 func Bootstrap(config *BootstrapConfig) {
 	userRepository := repository.NewUserRepository()
+	categoryRepository := repository.NewCategoryRepository()
 
 	authService := service.NewAuthService(config.DB, userRepository, config.Log, config.Validator, config.Jwt)
+	categoryService := service.NewCategoryService(config.DB, categoryRepository, config.Log, config.Validator)
 
 	authController := controller.NewAuthController(config.Log, authService)
+	categoryController := controller.NewCategoryController(config.Log, categoryService)
 
 	healthController := controller.NewHealthController(config.Log, config.DB, config.Redis)
 
+	authMiddleware := jwt.NewJWTMiddleware(&jwt.MiddlewareConfig{
+		Log: config.Log,
+		Jwt: config.Jwt,
+	}).Handle()
+
 	routeConfig := &route.RouteConfig{
-		App:              config.App,
-		AuthController:   authController,
-		HealthController: healthController,
+		App:                config.App,
+		AuthController:     authController,
+		CategoryController: categoryController,
+		HealthController:   healthController,
+		AuthMiddleware:     authMiddleware,
 	}
 
 	routeConfig.Setup()

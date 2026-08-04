@@ -2,7 +2,7 @@
 /logs/
 /main
 /AGENTS.md
-/docs/TASK_LIST.md
+/docs
 
 .env.local
 *.db
