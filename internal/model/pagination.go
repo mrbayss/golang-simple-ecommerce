@@ -8,6 +8,6 @@ type PageMeta struct {
 }
 
 type PaginatedRes[T any] struct {
-	Items []T      `json:"items"`
-	Meta  PageMeta `json:"meta"`
+	Data []T      `json:"data"`
+	Meta PageMeta `json:"meta"`
 }

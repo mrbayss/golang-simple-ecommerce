@@ -106,7 +106,7 @@ func (cs *categoryService) GetAll(c context.Context, page, limit int) (*model.Pa
 	}
 
 	return &model.PaginatedRes[model.CategoryRes]{
-		Items: items,
+		Data: items,
 		Meta: model.PageMeta{
 			Page:       page,
 			Limit:      limit,
