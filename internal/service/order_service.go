@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/model/converter"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/apperror"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/phonenumber"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
@@ -140,7 +141,7 @@ func (os *orderService) Create(c context.Context, request *model.CreateOrderReq)
 
 	os.Log.Infof("order created: %s total=%s", order.OrderCode, order.TotalPrice.IDR())
 
-	return toOrderRes(order), nil
+	return converter.ToOrderRes(order), nil
 }
 
 // generateOrderCode produces WB-YYYYMMDD-NNNN based on today's order count.
@@ -165,7 +166,7 @@ func (os *orderService) GetByCode(c context.Context, code string) (*model.OrderR
 		return nil, err
 	}
 
-	return toOrderRes(order), nil
+	return converter.ToOrderRes(order), nil
 }
 
 func (os *orderService) GetAll(c context.Context, page, limit int, status *entity.OrderStatus) (*model.OrderListRes, error) {
@@ -177,7 +178,7 @@ func (os *orderService) GetAll(c context.Context, page, limit int, status *entit
 
 	items := make([]model.OrderRes, 0, len(orders))
 	for _, order := range orders {
-		items = append(items, *toOrderRes(&order))
+		items = append(items, *converter.ToOrderRes(&order))
 	}
 
 	totalPages := 0
@@ -261,35 +262,5 @@ func (os *orderService) UpdateStatus(c context.Context, id string, request *mode
 	os.Log.Infof("order %s status: %s -> %s", order.OrderCode, oldStatus, newStatus)
 
 	order.Status = newStatus
-	return toOrderRes(order), nil
-}
-
-func toOrderRes(order *entity.Order) *model.OrderRes {
-	res := &model.OrderRes{
-		ID:              order.ID.String(),
-		OrderCode:       order.OrderCode,
-		CustomerName:    order.CustomerName,
-		CustomerPhone:   order.CustomerPhone,
-		CustomerAddress: order.CustomerAddress,
-		Notes:           order.Notes,
-		PaymentMethod:   string(order.PaymentMethod),
-		Status:          string(order.Status),
-		TotalPrice:      order.TotalPrice,
-		CreatedAt:       order.CreatedAt,
-		UpdatedAt:       order.UpdatedAt,
-		Items:           make([]model.OrderItemRes, 0, len(order.Items)),
-	}
-
-	for _, item := range order.Items {
-		res.Items = append(res.Items, model.OrderItemRes{
-			ID:           item.ID.String(),
-			ProductID:    item.ProductID.String(),
-			ProductName:  item.ProductName,
-			ProductPrice: item.ProductPrice,
-			Quantity:     item.Quantity,
-			Subtotal:     item.Subtotal,
-		})
-	}
-
-	return res
+	return converter.ToOrderRes(order), nil
 }

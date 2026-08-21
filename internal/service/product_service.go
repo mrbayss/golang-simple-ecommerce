@@ -6,8 +6,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
-	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/model/converter"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/apperror"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
 	"github.com/sirupsen/logrus"
@@ -49,7 +49,7 @@ func (ps *productService) GetByID(c context.Context, id string) (*model.ProductR
 		return nil, err
 	}
 
-	return toProductRes(product), nil
+	return converter.ToProductRes(product), nil
 }
 
 func (ps *productService) GetBySlug(c context.Context, slug string) (*model.ProductRes, error) {
@@ -61,7 +61,7 @@ func (ps *productService) GetBySlug(c context.Context, slug string) (*model.Prod
 		return nil, err
 	}
 
-	return toProductRes(product), nil
+	return converter.ToProductRes(product), nil
 }
 
 func (ps *productService) GetAll(c context.Context, page, limit int) (*model.ProductListRes, error) {
@@ -75,7 +75,7 @@ func (ps *productService) GetAll(c context.Context, page, limit int) (*model.Pro
 
 	items := make([]model.ProductRes, 0, len(products))
 	for _, product := range products {
-		items = append(items, *toProductRes(&product))
+		items = append(items, *converter.ToProductRes(&product))
 	}
 
 	totalPages := 0
@@ -92,35 +92,4 @@ func (ps *productService) GetAll(c context.Context, page, limit int) (*model.Pro
 			TotalPages: totalPages,
 		},
 	}, nil
-}
-
-func toProductRes(product *entity.Product) *model.ProductRes {
-	res := &model.ProductRes{
-		ID:          product.ID.String(),
-		Name:        product.Name,
-		Slug:        product.Slug,
-		Description: product.Description,
-		Price:       product.Price,
-		Stock:       product.Stock,
-		Weight:      product.Weight,
-		CreatedAt:   product.CreatedAt,
-		UpdatedAt:   product.UpdatedAt,
-		Images:      make([]model.ProductImageRes, 0, len(product.Images)),
-	}
-
-	if product.CategoryID != nil && product.Category != nil {
-		categoryID := product.CategoryID.String()
-		res.CategoryID = &categoryID
-		res.Category = toCategoryRes(product.Category)
-	}
-
-	for _, img := range product.Images {
-		res.Images = append(res.Images, model.ProductImageRes{
-			ID:        img.ID.String(),
-			ImageURL:  img.ImageURL,
-			IsPrimary: img.IsPrimary,
-		})
-	}
-
-	return res
 }

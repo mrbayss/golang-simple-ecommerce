@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/model/converter"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/pkg/apperror"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
 	"github.com/sirupsen/logrus"
@@ -67,7 +68,7 @@ func (cs *categoryService) Create(c context.Context, request *model.CreateCatego
 
 	cs.Log.Infof("category created: %s", category.Name)
 
-	return toCategoryRes(category), nil
+	return converter.ToCategoryRes(category), nil
 }
 
 func (cs *categoryService) GetByID(c context.Context, id string) (*model.CategoryRes, error) {
@@ -83,7 +84,7 @@ func (cs *categoryService) GetByID(c context.Context, id string) (*model.Categor
 		return nil, err
 	}
 
-	return toCategoryRes(category), nil
+	return converter.ToCategoryRes(category), nil
 }
 
 func (cs *categoryService) GetAll(c context.Context, page, limit int) (*model.PaginatedRes[model.CategoryRes], error) {
@@ -97,7 +98,7 @@ func (cs *categoryService) GetAll(c context.Context, page, limit int) (*model.Pa
 
 	items := make([]model.CategoryRes, 0, len(categories))
 	for _, category := range categories {
-		items = append(items, *toCategoryRes(&category))
+		items = append(items, *converter.ToCategoryRes(&category))
 	}
 
 	totalPages := 0
@@ -152,7 +153,7 @@ func (cs *categoryService) Update(c context.Context, id string, request *model.U
 
 	cs.Log.Infof("category updated: %s", category.Name)
 
-	return toCategoryRes(category), nil
+	return converter.ToCategoryRes(category), nil
 }
 
 func (cs *categoryService) Delete(c context.Context, id string) error {
@@ -175,14 +176,4 @@ func (cs *categoryService) Delete(c context.Context, id string) error {
 	cs.Log.Infof("category deleted: %s", id)
 
 	return nil
-}
-
-func toCategoryRes(category *entity.Category) *model.CategoryRes {
-	return &model.CategoryRes{
-		ID:        category.ID.String(),
-		Name:      category.Name,
-		Slug:      category.Slug,
-		CreatedAt: category.CreatedAt,
-		UpdatedAt: category.UpdatedAt,
-	}
 }
