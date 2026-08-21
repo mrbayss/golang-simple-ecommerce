@@ -14,11 +14,11 @@ type ProductRes struct {
 	Slug        string            `json:"slug"`
 	Description string            `json:"description"`
 	Price       entity.Money      `json:"price"`
-	Stock       int                `json:"stock"`
-	Weight      int                `json:"weight"`
-	Images      []ProductImageRes  `json:"images"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   *time.Time         `json:"updated_at,omitempty"`
+	Stock       int               `json:"stock"`
+	Weight      int               `json:"weight"`
+	Images      []ProductImageRes `json:"images"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   *time.Time        `json:"updated_at,omitempty"`
 }
 
 type ProductImageRes struct {

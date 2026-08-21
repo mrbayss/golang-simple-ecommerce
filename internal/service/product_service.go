@@ -21,10 +21,10 @@ type ProductService interface {
 }
 
 type productService struct {
-	DB              *gorm.DB
+	DB                *gorm.DB
 	ProductRepository repository.ProductRepository
-	Log             *logrus.Logger
-	Validate        *validator.Validate
+	Log               *logrus.Logger
+	Validate          *validator.Validate
 }
 
 func NewProductService(db *gorm.DB, productRepository repository.ProductRepository, log *logrus.Logger, validate *validator.Validate) ProductService {

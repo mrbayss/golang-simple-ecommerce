@@ -15,8 +15,8 @@ type HealthCheckResult struct {
 }
 
 type HealthResponse struct {
-	Status string                `json:"status"`
-	Checks []HealthCheckResult   `json:"checks"`
+	Status string              `json:"status"`
+	Checks []HealthCheckResult `json:"checks"`
 }
 
 type HealthController struct {

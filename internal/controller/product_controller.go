@@ -11,8 +11,8 @@ import (
 )
 
 type ProductController struct {
-	Log             *logrus.Logger
-	ProductService  service.ProductService
+	Log            *logrus.Logger
+	ProductService service.ProductService
 }
 
 func NewProductController(log *logrus.Logger, productService service.ProductService) *ProductController {

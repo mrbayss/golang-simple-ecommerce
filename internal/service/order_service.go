@@ -26,11 +26,11 @@ type OrderService interface {
 }
 
 type orderService struct {
-	DB               *gorm.DB
-	OrderRepository  repository.OrderRepository
+	DB                *gorm.DB
+	OrderRepository   repository.OrderRepository
 	ProductRepository repository.ProductRepository
-	Log              *logrus.Logger
-	Validate         *validator.Validate
+	Log               *logrus.Logger
+	Validate          *validator.Validate
 }
 
 func NewOrderService(db *gorm.DB, orderRepository repository.OrderRepository, productRepository repository.ProductRepository, log *logrus.Logger, validate *validator.Validate) OrderService {
