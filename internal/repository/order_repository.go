@@ -10,8 +10,10 @@ import (
 type OrderRepository interface {
 	CreateWithItems(db *gorm.DB, order *entity.Order) error
 	FindByCode(db *gorm.DB, code string) (*entity.Order, error)
+	FindByID(db *gorm.DB, id string) (*entity.Order, error)
 	FindAllPaginated(db *gorm.DB, page, limit int, status *entity.OrderStatus) ([]entity.Order, int64, error)
 	CountToday(db *gorm.DB, day time.Time) (int64, error)
+	UpdateStatus(db *gorm.DB, id string, status entity.OrderStatus) error
 }
 
 type orderRepository struct {
@@ -21,20 +23,26 @@ func NewOrderRepository() OrderRepository {
 	return &orderRepository{}
 }
 
-// CreateWithItems inserts the order and its items in one transaction.
+// CreateWithItems inserts the order together with its items.
+// GORM creates associated rows automatically when order.Items is set.
 func (or *orderRepository) CreateWithItems(db *gorm.DB, order *entity.Order) error {
-	return db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(order).Error; err != nil {
-			return err
-		}
-		return nil // items dibuat via association di service (order.Items sudah terisi)
-	})
+	return db.Create(order).Error
 }
 
 func (or *orderRepository) FindByCode(db *gorm.DB, code string) (*entity.Order, error) {
 	var order entity.Order
 
 	if err := db.Preload("Items").Where("order_code = ?", code).First(&order).Error; err != nil {
+		return nil, err
+	}
+
+	return &order, nil
+}
+
+func (or *orderRepository) FindByID(db *gorm.DB, id string) (*entity.Order, error) {
+	var order entity.Order
+
+	if err := db.Preload("Items").Where("id = ?", id).First(&order).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,4 +80,8 @@ func (or *orderRepository) CountToday(db *gorm.DB, day time.Time) (int64, error)
 	}
 
 	return count, nil
+}
+
+func (or *orderRepository) UpdateStatus(db *gorm.DB, id string, status entity.OrderStatus) error {
+	return db.Model(new(entity.Order)).Where("id = ?", id).Update("status", status).Error
 }

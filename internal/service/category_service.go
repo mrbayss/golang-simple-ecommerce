@@ -49,7 +49,7 @@ func (cs *categoryService) Create(c context.Context, request *model.CreateCatego
 
 	if _, err := cs.CategoryRepository.FindBySlug(ctx, request.Slug); err == nil {
 		cs.Log.Warnf("slug already used: %s", request.Slug)
-		return nil, apperror.NewAppError(fiber.StatusConflict, "Slug kategori sudah digunakan")
+		return nil, apperror.NewAppError(fiber.StatusConflict, "category slug already in use")
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		cs.Log.Errorf("failed to find category by slug: %v", err)
 		return nil, err
@@ -74,7 +74,7 @@ func (cs *categoryService) GetByID(c context.Context, id string) (*model.Categor
 	ctx := cs.DB.WithContext(c)
 
 	if _, err := uuid.Parse(id); err != nil {
-		return nil, apperror.NewAppError(fiber.StatusBadRequest, "Format id tidak valid")
+		return nil, apperror.NewAppError(fiber.StatusBadRequest, "invalid id format")
 	}
 
 	category, err := cs.CategoryRepository.GetByID(ctx, id)
@@ -120,7 +120,7 @@ func (cs *categoryService) Update(c context.Context, id string, request *model.U
 	ctx := cs.DB.WithContext(c)
 
 	if _, err := uuid.Parse(id); err != nil {
-		return nil, apperror.NewAppError(fiber.StatusBadRequest, "Format id tidak valid")
+		return nil, apperror.NewAppError(fiber.StatusBadRequest, "invalid id format")
 	}
 
 	if err := cs.Validate.Struct(request); err != nil {
@@ -136,7 +136,7 @@ func (cs *categoryService) Update(c context.Context, id string, request *model.U
 
 	if _, err := cs.CategoryRepository.FindBySlugExcludingID(ctx, request.Slug, id); err == nil {
 		cs.Log.Warnf("slug already used by other category: %s", request.Slug)
-		return nil, apperror.NewAppError(fiber.StatusConflict, "Slug kategori sudah digunakan")
+		return nil, apperror.NewAppError(fiber.StatusConflict, "category slug already in use")
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		cs.Log.Errorf("failed to find category by slug: %v", err)
 		return nil, err
@@ -159,7 +159,7 @@ func (cs *categoryService) Delete(c context.Context, id string) error {
 	ctx := cs.DB.WithContext(c)
 
 	if _, err := uuid.Parse(id); err != nil {
-		return apperror.NewAppError(fiber.StatusBadRequest, "Format id tidak valid")
+		return apperror.NewAppError(fiber.StatusBadRequest, "invalid id format")
 	}
 
 	if _, err := cs.CategoryRepository.GetByID(ctx, id); err != nil {

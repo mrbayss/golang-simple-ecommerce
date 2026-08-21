@@ -40,7 +40,7 @@ func (ps *productService) GetByID(c context.Context, id string) (*model.ProductR
 	ctx := ps.DB.WithContext(c)
 
 	if _, err := uuid.Parse(id); err != nil {
-		return nil, apperror.NewAppError(fiber.StatusBadRequest, "Format id tidak valid")
+		return nil, apperror.NewAppError(fiber.StatusBadRequest, "invalid id format")
 	}
 
 	product, err := ps.ProductRepository.GetByID(ctx, id)
@@ -100,7 +100,7 @@ func toProductRes(product *entity.Product) *model.ProductRes {
 		Name:        product.Name,
 		Slug:        product.Slug,
 		Description: product.Description,
-		Price:       int64(product.Price),
+		Price:       product.Price,
 		Stock:       product.Stock,
 		Weight:      product.Weight,
 		CreatedAt:   product.CreatedAt,

@@ -25,7 +25,7 @@ func (ac *AuthController) Register(ctx fiber.Ctx) error {
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		ac.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
 	if err := ac.AuthService.Register(ctx, &request); err != nil {
@@ -34,7 +34,7 @@ func (ac *AuthController) Register(ctx fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(
-		model.SuccessResponse(nil, "Registrasi berhasil"),
+		model.SuccessResponse(nil, "registration successful"),
 	)
 }
 
@@ -43,7 +43,7 @@ func (ac *AuthController) Login(ctx fiber.Ctx) error {
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		ac.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
 	res, err := ac.AuthService.Login(ctx, &request)

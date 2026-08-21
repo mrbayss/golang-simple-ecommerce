@@ -82,15 +82,15 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			as.Log.Warnf("login failed, email not found: %s", request.Email)
-			return nil, apperror.NewAppError(fiber.StatusUnauthorized, "email atau password salah")
+			return nil, apperror.NewAppError(fiber.StatusUnauthorized, "invalid email or password")
 		}
 		as.Log.Errorf("failed to find by email: %v", err)
-		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "kesalahan server internal")
+		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "internal server error")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		as.Log.Warnf("failed to compare password for %s: %v", request.Email, err)
-		return nil, apperror.NewAppError(fiber.StatusUnauthorized, "email atau password salah")
+		return nil, apperror.NewAppError(fiber.StatusUnauthorized, "invalid email or password")
 	}
 
 	accessToken, accessClaims, err := as.Jwt.GenerateToken(user.ID.String(), user.Email, string(user.Role), time.Hour*24)

@@ -12,16 +12,16 @@ import (
 )
 
 var ValidatorValidationMessages = map[string]string{
-	"required": "Tidak boleh kosong",
-	"email":    "Format email tidak valid",
-	"datetime": "Format tanggal tidak valid",
-	"min":      "minimal %s karakter",
-	"max":      "maksimal %s karakter",
-	"gt":       "nominal harus lebih besar dari %s",
-	"uuid":     "Format id tidak valid",
-	"url":      "Format url tidak valid",
-	"oneof":    "harus salah satu dari %s",
-	"numeric":  "harus berupa angka",
+	"required": "is required",
+	"email":    "invalid email format",
+	"datetime": "invalid date format",
+	"min":      "minimum %s characters",
+	"max":      "maximum %s characters",
+	"gt":       "value must be greater than %s",
+	"uuid":     "invalid id format",
+	"url":      "invalid url format",
+	"oneof":    "must be one of %s",
+	"numeric":  "must be a number",
 }
 
 type ErrorParams struct {
@@ -36,7 +36,7 @@ func GetValidationErrorMessage(err error) []*model.ValidationError {
 		return []*model.ValidationError{
 			{
 				Field:   "",
-				Message: "Input tidak valid",
+				Message: "invalid input",
 			},
 		}
 	}
@@ -48,7 +48,7 @@ func GetValidationErrorMessage(err error) []*model.ValidationError {
 		msg := ValidatorValidationMessages[e.Tag()]
 
 		if msg == "" {
-			msg = "input tidak valid"
+			msg = "invalid input"
 		}
 
 		if e.Param() != "" {
@@ -71,7 +71,7 @@ func HandleError(err error, params ...ErrorParams) (string, int, []*model.Valida
 
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
-		return "Input tidak valid", http.StatusBadRequest, GetValidationErrorMessage(err)
+		return "invalid input", http.StatusBadRequest, GetValidationErrorMessage(err)
 	}
 
 	var appErr *AppError
@@ -84,21 +84,21 @@ func HandleError(err error, params ...ErrorParams) (string, int, []*model.Valida
 		p = params[0]
 	}
 
-	object := "tersebut"
+	object := "item"
 	if p.Object != "" {
 		object = p.Object
 	}
 
 	if strings.Contains(err.Error(), "invalid UUID") {
-		return fmt.Sprintf("UUID %s tidak valid", object), http.StatusBadRequest, nil
+		return fmt.Sprintf("invalid UUID for %s", object), http.StatusBadRequest, nil
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return fmt.Sprintf("Data %s tidak ditemukan", object), http.StatusNotFound, nil
+		return fmt.Sprintf("%s not found", object), http.StatusNotFound, nil
 	}
 
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
-		return fmt.Sprintf("Data %s sudah ada", object), http.StatusConflict, nil
+		return fmt.Sprintf("%s already exists", object), http.StatusConflict, nil
 	}
 
 	if p.Fallback != "" {
@@ -106,8 +106,8 @@ func HandleError(err error, params ...ErrorParams) (string, int, []*model.Valida
 	}
 
 	if p.Object != "" {
-		return fmt.Sprintf("Kesalahan tidak terduga untuk data %s : %s", object, err.Error()), http.StatusInternalServerError, nil
+		return fmt.Sprintf("unexpected error for %s", object), http.StatusInternalServerError, nil
 	}
 
-	return fmt.Sprintf("Kesalahan tidak terduga : %s", err.Error()), http.StatusInternalServerError, nil
+	return "internal server error", http.StatusInternalServerError, nil
 }

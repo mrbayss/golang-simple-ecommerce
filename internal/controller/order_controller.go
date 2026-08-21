@@ -12,8 +12,8 @@ import (
 )
 
 type OrderController struct {
-	Log           *logrus.Logger
-	OrderService  service.OrderService
+	Log          *logrus.Logger
+	OrderService service.OrderService
 }
 
 func NewOrderController(log *logrus.Logger, orderService service.OrderService) *OrderController {
@@ -23,13 +23,13 @@ func NewOrderController(log *logrus.Logger, orderService service.OrderService) *
 	}
 }
 
-// Create handles guest checkout — no auth required.
+// Create handles guest checkout, no auth required.
 func (oc *OrderController) Create(ctx fiber.Ctx) error {
 	var request model.CreateOrderReq
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		oc.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
 	res, err := oc.OrderService.Create(ctx, &request)
@@ -38,18 +38,18 @@ func (oc *OrderController) Create(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(model.SuccessResponse(res, "Pesanan berhasil dibuat"))
+	return ctx.Status(fiber.StatusCreated).JSON(model.SuccessResponse(res, "order created successfully"))
 }
 
-// GetByCode lets a customer check their order status — no auth required.
+// GetByCode lets a customer check their order status, no auth required.
 func (oc *OrderController) GetByCode(ctx fiber.Ctx) error {
 	res, err := oc.OrderService.GetByCode(ctx, ctx.Params("code"))
 	if err != nil {
-		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "pesanan"})
+		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "order"})
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Pesanan ditemukan"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "order found"))
 }
 
 // GetAll lists orders for admin, optional ?status= filter.
@@ -72,27 +72,27 @@ func (oc *OrderController) GetAll(ctx fiber.Ctx) error {
 
 	res, err := oc.OrderService.GetAll(ctx, page, limit, status)
 	if err != nil {
-		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "pesanan"})
+		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "order"})
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Daftar pesanan"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "order list"))
 }
 
-// UpdateStatus changes order status — admin only.
+// UpdateStatus changes order status, admin only.
 func (oc *OrderController) UpdateStatus(ctx fiber.Ctx) error {
 	var request model.UpdateOrderStatusReq
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		oc.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
-	res, err := oc.OrderService.UpdateStatus(ctx, ctx.Params("id"), entity.OrderStatus(request.Status))
+	res, err := oc.OrderService.UpdateStatus(ctx, ctx.Params("id"), &request)
 	if err != nil {
-		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "pesanan"})
+		message, code, validationErrors := apperror.HandleError(err, apperror.ErrorParams{Object: "order"})
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Status pesanan diperbarui"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "order status updated"))
 }

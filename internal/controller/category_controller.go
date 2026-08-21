@@ -27,7 +27,7 @@ func (cc *CategoryController) Create(ctx fiber.Ctx) error {
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		cc.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
 	res, err := cc.CategoryService.Create(ctx, &request)
@@ -36,7 +36,7 @@ func (cc *CategoryController) Create(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(model.SuccessResponse(res, "Kategori berhasil dibuat"))
+	return ctx.Status(fiber.StatusCreated).JSON(model.SuccessResponse(res, "category created successfully"))
 }
 
 func (cc *CategoryController) GetByID(ctx fiber.Ctx) error {
@@ -46,7 +46,7 @@ func (cc *CategoryController) GetByID(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Kategori ditemukan"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "category found"))
 }
 
 func (cc *CategoryController) GetAll(ctx fiber.Ctx) error {
@@ -66,7 +66,7 @@ func (cc *CategoryController) GetAll(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Daftar kategori"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "category list"))
 }
 
 func (cc *CategoryController) Update(ctx fiber.Ctx) error {
@@ -74,7 +74,7 @@ func (cc *CategoryController) Update(ctx fiber.Ctx) error {
 
 	if err := ctx.Bind().Body(&request); err != nil {
 		cc.Log.Warnf("failed to parse body: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("Format request tidak valid", nil))
+		return ctx.Status(fiber.StatusBadRequest).JSON(model.ErrorResponse("invalid request format", nil))
 	}
 
 	res, err := cc.CategoryService.Update(ctx, ctx.Params("id"), &request)
@@ -83,7 +83,7 @@ func (cc *CategoryController) Update(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Kategori berhasil diperbarui"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "category updated successfully"))
 }
 
 func (cc *CategoryController) Delete(ctx fiber.Ctx) error {
@@ -92,5 +92,5 @@ func (cc *CategoryController) Delete(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(nil, "Kategori berhasil dihapus"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(nil, "category deleted successfully"))
 }

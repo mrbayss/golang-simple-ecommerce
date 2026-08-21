@@ -40,19 +40,19 @@ func (m *JWTMiddleware) Handle() fiber.Handler {
 		authHeader := ctx.Get("Authorization")
 		if authHeader == "" {
 			m.Log.Warn("missing authorization header")
-			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("Token tidak ditemukan", nil))
+			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("token not found", nil))
 		}
 
 		if len(authHeader) < 8 || authHeader[:7] != "Bearer " {
 			m.Log.Warn("invalid authorization format")
-			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("Format token tidak valid", nil))
+			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("invalid token format", nil))
 		}
 
 		tokenString := authHeader[7:]
 		claims, err := m.Jwt.VerifyToken(tokenString)
 		if err != nil {
 			m.Log.Warnf("invalid token: %v", err)
-			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("Token tidak valid atau expired", nil))
+			return ctx.Status(fiber.StatusUnauthorized).JSON(model.ErrorResponse("invalid or expired token", nil))
 		}
 
 		ctx.Locals("user_id", claims.ID)
@@ -73,7 +73,7 @@ func (m *JWTMiddleware) RequireAdmin() fiber.Handler {
 		if !ok || role != string(entity.AdminRole) {
 			m.Log.Warnf("admin access denied: role=%s", role)
 			return ctx.Status(fiber.StatusForbidden).JSON(
-				model.ErrorResponse("Akses khusus admin", nil))
+				model.ErrorResponse("admin access only", nil))
 		}
 		return ctx.Next()
 	}

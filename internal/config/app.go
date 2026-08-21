@@ -33,7 +33,7 @@ func Bootstrap(config *BootstrapConfig) {
 	authService := service.NewAuthService(config.DB, userRepository, config.Log, config.Validator, config.Jwt)
 	categoryService := service.NewCategoryService(config.DB, categoryRepository, config.Log, config.Validator)
 	productService := service.NewProductService(config.DB, productRepository, config.Log, config.Validator)
-	orderService := service.NewOrderService(config.DB, orderRepository, config.Log, config.Validator)
+	orderService := service.NewOrderService(config.DB, orderRepository, productRepository, config.Log, config.Validator)
 
 	authController := controller.NewAuthController(config.Log, authService)
 	categoryController := controller.NewCategoryController(config.Log, categoryService)

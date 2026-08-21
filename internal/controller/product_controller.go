@@ -29,7 +29,7 @@ func (pc *ProductController) GetByID(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Produk ditemukan"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "product found"))
 }
 
 func (pc *ProductController) GetBySlug(ctx fiber.Ctx) error {
@@ -39,7 +39,7 @@ func (pc *ProductController) GetBySlug(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Produk ditemukan"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "product found"))
 }
 
 func (pc *ProductController) GetAll(ctx fiber.Ctx) error {
@@ -59,5 +59,5 @@ func (pc *ProductController) GetAll(ctx fiber.Ctx) error {
 		return ctx.Status(code).JSON(model.ErrorResponse(message, validationErrors))
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "Daftar produk"))
+	return ctx.Status(fiber.StatusOK).JSON(model.SuccessResponse(res, "product list"))
 }
