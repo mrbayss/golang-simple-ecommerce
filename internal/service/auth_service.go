@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -79,8 +80,12 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 
 	user, err := as.UserRepository.FindByEmail(ctx, request.Email)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			as.Log.Warnf("login failed, email not found: %s", request.Email)
+			return nil, apperror.NewAppError(fiber.StatusUnauthorized, "email atau password salah")
+		}
 		as.Log.Errorf("failed to find by email: %v", err)
-		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "email atau password salah")
+		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "kesalahan server internal")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
