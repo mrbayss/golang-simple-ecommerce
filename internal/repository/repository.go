@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -54,8 +52,9 @@ func (r *RepositoryImpl[T]) GetAll(db *gorm.DB) ([]T, error) {
 }
 
 func (r *RepositoryImpl[T]) SoftDelete(db *gorm.DB, id string) error {
-	return db.Model(new(T)).Where("id = ?", id).Update("deleted_at", time.Now().Unix()).Error
-
+	// gorm.DeletedAt is set automatically by GORM when Delete() is called
+	// on a model that has a DeletedAt field (soft delete).
+	return db.Model(new(T)).Where("id = ?", id).Delete(new(T)).Error
 }
 
 func (r *RepositoryImpl[T]) GetByColumn(db *gorm.DB, column string, value any) (*T, error) {
