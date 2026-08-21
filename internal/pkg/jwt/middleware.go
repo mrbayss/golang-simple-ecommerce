@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/model"
 	"github.com/sirupsen/logrus"
 )
@@ -60,6 +61,20 @@ func (m *JWTMiddleware) Handle() fiber.Handler {
 		ctx.Locals("session_id", claims.ID)
 
 		m.Log.Debugf("auth success: user=%s role=%s", claims.Email, claims.Role)
+		return ctx.Next()
+	}
+}
+
+// RequireAdmin must be chained AFTER Handle() so that user_role
+// is already present in ctx.Locals.
+func (m *JWTMiddleware) RequireAdmin() fiber.Handler {
+	return func(ctx fiber.Ctx) error {
+		role, ok := GetUserRole(ctx)
+		if !ok || role != string(entity.AdminRole) {
+			m.Log.Warnf("admin access denied: role=%s", role)
+			return ctx.Status(fiber.StatusForbidden).JSON(
+				model.ErrorResponse("Akses khusus admin", nil))
+		}
 		return ctx.Next()
 	}
 }

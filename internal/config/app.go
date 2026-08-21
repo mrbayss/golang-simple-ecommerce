@@ -39,14 +39,16 @@ func Bootstrap(config *BootstrapConfig) {
 	authMiddleware := jwt.NewJWTMiddleware(&jwt.MiddlewareConfig{
 		Log: config.Log,
 		Jwt: config.Jwt,
-	}).Handle()
+	})
+	adminMiddleware := authMiddleware.RequireAdmin()
 
 	routeConfig := &route.RouteConfig{
 		App:                config.App,
 		AuthController:     authController,
 		CategoryController: categoryController,
 		HealthController:   healthController,
-		AuthMiddleware:     authMiddleware,
+		AuthMiddleware:     authMiddleware.Handle(),
+		AdminMiddleware:    adminMiddleware,
 	}
 
 	routeConfig.Setup()

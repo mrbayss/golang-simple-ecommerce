@@ -11,4 +11,5 @@ type RouteConfig struct {
 	CategoryController *controller.CategoryController
 	HealthController   *controller.HealthController
 	AuthMiddleware     fiber.Handler
+	AdminMiddleware    fiber.Handler
 }
