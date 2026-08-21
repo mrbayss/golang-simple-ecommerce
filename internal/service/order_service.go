@@ -74,10 +74,12 @@ func (os *orderService) Create(c context.Context, request *model.CreateOrderReq)
 		for _, itemReq := range request.Items {
 			productID, err := uuid.Parse(itemReq.ProductID)
 			if err != nil {
+				os.Log.Warnf("create order rejected, invalid product_id %s: %v", itemReq.ProductID, err)
 				return apperror.NewAppError(fiber.StatusBadRequest, "invalid product_id format")
 			}
 
 			if seenProducts[productID] {
+				os.Log.Warnf("create order rejected, duplicate product %s", productID)
 				return apperror.NewAppError(fiber.StatusBadRequest, "duplicate product in order")
 			}
 			seenProducts[productID] = true
@@ -85,12 +87,14 @@ func (os *orderService) Create(c context.Context, request *model.CreateOrderReq)
 			product, err := os.ProductRepository.FindByIDForUpdate(tx, productID.String())
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
+					os.Log.Warnf("create order rejected, product not found: %s", itemReq.ProductID)
 					return apperror.NewAppError(fiber.StatusBadRequest, fmt.Sprintf("product not found: %s", itemReq.ProductID))
 				}
 				return fmt.Errorf("lock product %s: %w", productID, err)
 			}
 
 			if product.Stock < itemReq.Quantity {
+				os.Log.Warnf("create order rejected, insufficient stock for %s (requested %d, remaining %d)", product.Name, itemReq.Quantity, product.Stock)
 				return apperror.NewAppError(fiber.StatusConflict, fmt.Sprintf("insufficient stock for %s (remaining %d)", product.Name, product.Stock))
 			}
 
@@ -153,7 +157,11 @@ func (os *orderService) generateOrderCode(ctx *gorm.DB) (string, error) {
 func (os *orderService) GetByCode(c context.Context, code string) (*model.OrderRes, error) {
 	order, err := os.OrderRepository.FindByCode(os.DB.WithContext(c), code)
 	if err != nil {
-		os.Log.Errorf("failed to find order by code %s: %v", code, err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			os.Log.Warnf("order not found by code: %s", code)
+		} else {
+			os.Log.Errorf("failed to find order by code %s: %v", code, err)
+		}
 		return nil, err
 	}
 
@@ -199,6 +207,7 @@ var allowedTransitions = map[entity.OrderStatus][]entity.OrderStatus{
 
 func (os *orderService) UpdateStatus(c context.Context, id string, request *model.UpdateOrderStatusReq) (*model.OrderRes, error) {
 	if _, err := uuid.Parse(id); err != nil {
+		os.Log.Warnf("update status rejected, invalid id format: %s", id)
 		return nil, apperror.NewAppError(fiber.StatusBadRequest, "invalid id format")
 	}
 
@@ -206,7 +215,11 @@ func (os *orderService) UpdateStatus(c context.Context, id string, request *mode
 
 	order, err := os.OrderRepository.FindByID(os.DB.WithContext(c), id)
 	if err != nil {
-		os.Log.Errorf("failed to find order %s: %v", id, err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			os.Log.Warnf("update status rejected, order not found: %s", id)
+		} else {
+			os.Log.Errorf("failed to find order %s: %v", id, err)
+		}
 		return nil, err
 	}
 
@@ -218,6 +231,7 @@ func (os *orderService) UpdateStatus(c context.Context, id string, request *mode
 		}
 	}
 	if !valid {
+		os.Log.Warnf("update status rejected, invalid transition for %s: %s -> %s", order.OrderCode, order.Status, newStatus)
 		return nil, apperror.NewAppError(fiber.StatusConflict,
 			fmt.Sprintf("invalid status transition from %s to %s", order.Status, newStatus))
 	}
