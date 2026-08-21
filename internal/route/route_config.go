@@ -10,6 +10,7 @@ type RouteConfig struct {
 	AuthController     *controller.AuthController
 	CategoryController *controller.CategoryController
 	ProductController  *controller.ProductController
+	OrderController    *controller.OrderController
 	HealthController   *controller.HealthController
 	AuthMiddleware     fiber.Handler
 	AdminMiddleware    fiber.Handler

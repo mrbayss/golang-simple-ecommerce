@@ -6,21 +6,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type paymentMethod string
-type orderStatus string
+type PaymentMethod string
+type OrderStatus string
 
 const (
-	PaymentCOD      paymentMethod = "COD"
-	PaymentTransfer paymentMethod = "TRANSFER"
-	PaymentQRIS     paymentMethod = "QRIS"
+	PaymentCOD      PaymentMethod = "COD"
+	PaymentTransfer PaymentMethod = "TRANSFER"
+	PaymentQRIS     PaymentMethod = "QRIS"
 )
 
 const (
-	StatusPending   orderStatus = "PENDING"   // baru masuk, belum dikonfirmasi admin
-	StatusConfirmed orderStatus = "CONFIRMED" // admin konfirmasi, sedang disiapkan
-	StatusReady     orderStatus = "READY"     // siap diambil/diantar
-	StatusCompleted orderStatus = "COMPLETED" // selesai + dibayar (final)
-	StatusCancelled orderStatus = "CANCELLED" // dibatalkan (final)
+	StatusPending   OrderStatus = "PENDING"   // baru masuk, belum dikonfirmasi admin
+	StatusConfirmed OrderStatus = "CONFIRMED" // admin konfirmasi, sedang disiapkan
+	StatusReady     OrderStatus = "READY"     // siap diambil/diantar
+	StatusCompleted OrderStatus = "COMPLETED" // selesai + dibayar (final)
+	StatusCancelled OrderStatus = "CANCELLED" // dibatalkan (final)
 )
 
 type Order struct {
@@ -30,8 +30,8 @@ type Order struct {
 	CustomerPhone   string        `gorm:"column:customer_phone;type:varchar(15);not null"` // normalized E.164 tanpa '+': 628123456789
 	CustomerAddress *string       `gorm:"column:customer_address;type:text"`               // null = ambil sendiri di warung
 	Notes           *string       `gorm:"column:notes;type:text"`                          // contoh: "pedas, tanpa timun"
-	PaymentMethod   paymentMethod `gorm:"column:payment_method;type:varchar(20);not null"` // COD / TRANSFER / QRIS
-	Status          orderStatus   `gorm:"column:status;type:varchar(20);default:'PENDING';not null"`
+	PaymentMethod   PaymentMethod `gorm:"column:payment_method;type:varchar(20);not null"` // COD / TRANSFER / QRIS
+	Status          OrderStatus   `gorm:"column:status;type:varchar(20);default:'PENDING';not null"`
 	TotalPrice      Money         `gorm:"column:total_price;not null"` // dihitung server-side
 	CreatedAt       time.Time     `gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
 	UpdatedAt       *time.Time    `gorm:"column:updated_at;default:CURRENT_TIMESTAMP"`

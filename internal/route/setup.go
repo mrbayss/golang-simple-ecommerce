@@ -21,4 +21,5 @@ func (c *RouteConfig) Setup() {
 	c.SetupAuthRoute(api)
 	c.SetupCategoryRoute(api)
 	c.SetupProductRoute(api)
+	c.SetupOrderRoute(api)
 }

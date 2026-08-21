@@ -14,7 +14,7 @@ type Product struct {
 	Name        string         `gorm:"column:name;type:varchar(255);not null"`
 	Slug        string         `gorm:"column:slug;type:varchar(255);uniqueIndex:idx_product_slug_deleted_at,where:deleted_at IS NULL"`
 	Description string         `gorm:"column:description;type:text"`
-	Price       int64          `gorm:"column:price;not null"`
+	Price       Money          `gorm:"column:price;not null"`
 	Stock       int            `gorm:"column:stock;default:0;not null"`
 	Weight      int            `gorm:"column:weight;default:0"`
 	Images      []ProductImage `gorm:"foreignKey:ProductID;references:ID"`
