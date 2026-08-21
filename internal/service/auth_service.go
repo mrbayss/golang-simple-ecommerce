@@ -88,7 +88,7 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 		return nil, apperror.NewAppError(fiber.StatusUnauthorized, "email atau password salah")
 	}
 
-	accessToken, accessClaims, err := as.Jwt.GenerateToken(user.ID.String(), user.Email, string(entity.AdminRole), time.Hour*24)
+	accessToken, accessClaims, err := as.Jwt.GenerateToken(user.ID.String(), user.Email, string(user.Role), time.Hour*24)
 	if err != nil {
 		as.Log.Errorf("failed to generate token: %v", err)
 		return nil, apperror.NewAppError(fiber.StatusInternalServerError, "failed to generate token")
