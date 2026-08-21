@@ -27,12 +27,15 @@ type BootstrapConfig struct {
 func Bootstrap(config *BootstrapConfig) {
 	userRepository := repository.NewUserRepository()
 	categoryRepository := repository.NewCategoryRepository()
+	productRepository := repository.NewProductRepository()
 
 	authService := service.NewAuthService(config.DB, userRepository, config.Log, config.Validator, config.Jwt)
 	categoryService := service.NewCategoryService(config.DB, categoryRepository, config.Log, config.Validator)
+	productService := service.NewProductService(config.DB, productRepository, config.Log, config.Validator)
 
 	authController := controller.NewAuthController(config.Log, authService)
 	categoryController := controller.NewCategoryController(config.Log, categoryService)
+	productController := controller.NewProductController(config.Log, productService)
 
 	healthController := controller.NewHealthController(config.Log, config.DB, config.Redis)
 
@@ -46,6 +49,7 @@ func Bootstrap(config *BootstrapConfig) {
 		App:                config.App,
 		AuthController:     authController,
 		CategoryController: categoryController,
+		ProductController:  productController,
 		HealthController:   healthController,
 		AuthMiddleware:     authMiddleware.Handle(),
 		AdminMiddleware:    adminMiddleware,

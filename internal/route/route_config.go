@@ -9,6 +9,7 @@ type RouteConfig struct {
 	App                *fiber.App
 	AuthController     *controller.AuthController
 	CategoryController *controller.CategoryController
+	ProductController  *controller.ProductController
 	HealthController   *controller.HealthController
 	AuthMiddleware     fiber.Handler
 	AdminMiddleware    fiber.Handler
