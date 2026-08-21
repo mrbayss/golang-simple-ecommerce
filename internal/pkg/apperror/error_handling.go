@@ -64,6 +64,21 @@ func GetValidationErrorMessage(err error) []*model.ValidationError {
 	return result
 }
 
+// ValidationFields summarizes validation errors as readable
+// "Field(tag)" pairs, e.g. "CustomerPhone(min), PaymentMethod(oneof)".
+func ValidationFields(err error) string {
+	var ve validator.ValidationErrors
+	if !errors.As(err, &ve) {
+		return ""
+	}
+
+	parts := make([]string, 0, len(ve))
+	for _, e := range ve {
+		parts = append(parts, fmt.Sprintf("%s(%s)", e.Field(), e.Tag()))
+	}
+	return strings.Join(parts, ", ")
+}
+
 func HandleError(err error, params ...ErrorParams) (string, int, []*model.ValidationError) {
 	if err == nil {
 		return "", http.StatusOK, nil

@@ -2,12 +2,14 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/mrbayss/golang-simple-ecommerce/internal/entity"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func NewDatabase(config *viper.Viper, log *logrus.Logger) *gorm.DB {
@@ -30,6 +32,14 @@ func NewDatabase(config *viper.Viper, log *logrus.Logger) *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		TranslateError: true,
+		Logger: logger.New(
+			log,
+			logger.Config{
+				SlowThreshold:             time.Second, // log queries slower than this
+				LogLevel:                  logger.Warn, // only slow queries and errors
+				IgnoreRecordNotFoundError: true,        // not-found is a normal business case
+			},
+		),
 	})
 
 	if err != nil {

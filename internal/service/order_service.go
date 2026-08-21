@@ -48,7 +48,7 @@ func NewOrderService(db *gorm.DB, orderRepository repository.OrderRepository, pr
 // oversell under concurrent orders.
 func (os *orderService) Create(c context.Context, request *model.CreateOrderReq) (*model.OrderRes, error) {
 	if err := os.Validate.Struct(request); err != nil {
-		os.Log.Warnf("validation failed: %v", err)
+		os.Log.Warnf("create order rejected, invalid fields: %s", apperror.ValidationFields(err))
 		return nil, err
 	}
 

@@ -43,7 +43,7 @@ func (cs *categoryService) Create(c context.Context, request *model.CreateCatego
 	ctx := cs.DB.WithContext(c)
 
 	if err := cs.Validate.Struct(request); err != nil {
-		cs.Log.Warnf("validation failed: %v", err)
+		cs.Log.Warnf("category rejected, invalid fields: %s", apperror.ValidationFields(err))
 		return nil, err
 	}
 
@@ -124,7 +124,7 @@ func (cs *categoryService) Update(c context.Context, id string, request *model.U
 	}
 
 	if err := cs.Validate.Struct(request); err != nil {
-		cs.Log.Warnf("validation failed: %v", err)
+		cs.Log.Warnf("category rejected, invalid fields: %s", apperror.ValidationFields(err))
 		return nil, err
 	}
 

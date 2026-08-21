@@ -44,7 +44,7 @@ func (as *authService) Register(c context.Context, request *model.RegisterReq) e
 	ctx := as.DB.WithContext(c)
 
 	if err := as.Validate.Struct(request); err != nil {
-		as.Log.Warnf("validation failed: %v", err)
+		as.Log.Warnf("register rejected, invalid fields: %s", apperror.ValidationFields(err))
 		return err
 	}
 
@@ -74,7 +74,7 @@ func (as *authService) Login(c context.Context, request *model.LoginReq) (*model
 	ctx := as.DB.WithContext(c)
 
 	if err := as.Validate.Struct(request); err != nil {
-		as.Log.Warnf("validation failed: %v", err)
+		as.Log.Warnf("login rejected, invalid fields: %s", apperror.ValidationFields(err))
 		return nil, err
 	}
 
