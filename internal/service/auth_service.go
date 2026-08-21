@@ -51,7 +51,7 @@ func (as *authService) Register(c context.Context, request *model.RegisterReq) e
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		as.Log.Errorf("failed to bcrypt password: %v", err)
-		return apperror.NewAppError(fiber.StatusInternalServerError, "failed to generate hasing password")
+		return apperror.NewAppError(fiber.StatusInternalServerError, "failed to hash password")
 	}
 
 	create := &entity.User{
