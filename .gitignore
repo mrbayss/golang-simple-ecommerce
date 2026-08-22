@@ -3,6 +3,7 @@
 /main
 /AGENTS.md
 /docs
+/public/
 
 .env.local
 *.db

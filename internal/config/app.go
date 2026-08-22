@@ -8,6 +8,7 @@ import (
 	"github.com/mrbayss/golang-simple-ecommerce/internal/repository"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/route"
 	"github.com/mrbayss/golang-simple-ecommerce/internal/service"
+	"github.com/mrbayss/golang-simple-ecommerce/internal/storage"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -30,14 +31,26 @@ func Bootstrap(config *BootstrapConfig) {
 	productRepository := repository.NewProductRepository()
 	orderRepository := repository.NewOrderRepository()
 
+	// File storage
+	storageConfig := config.Config.GetStringMapString("storage")
+	basePath := "./public"
+	publicPath := "/public"
+	if storageConfig["base_path"] != "" {
+		basePath = storageConfig["base_path"]
+	}
+	if storageConfig["public_path"] != "" {
+		publicPath = storageConfig["public_path"]
+	}
+	fileStorage := storage.NewLocalStorage(basePath, publicPath)
+
 	authService := service.NewAuthService(config.DB, userRepository, config.Log, config.Validator, config.Jwt)
 	categoryService := service.NewCategoryService(config.DB, categoryRepository, config.Log, config.Validator)
-	productService := service.NewProductService(config.DB, productRepository, config.Log, config.Validator)
+	productService := service.NewProductService(config.DB, productRepository, categoryRepository, fileStorage, config.Log, config.Validator)
 	orderService := service.NewOrderService(config.DB, orderRepository, productRepository, config.Log, config.Validator)
 
 	authController := controller.NewAuthController(config.Log, authService)
 	categoryController := controller.NewCategoryController(config.Log, categoryService)
-	productController := controller.NewProductController(config.Log, productService)
+	productController := controller.NewProductController(productService)
 	orderController := controller.NewOrderController(config.Log, orderService)
 
 	healthController := controller.NewHealthController(config.Log, config.DB, config.Redis)

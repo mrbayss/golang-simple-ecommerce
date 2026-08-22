@@ -9,9 +9,12 @@ import (
 type ProductRepository interface {
 	Repository[entity.Product]
 	FindBySlug(db *gorm.DB, slug string) (*entity.Product, error)
+	FindBySlugExcludingID(db *gorm.DB, slug, id string) (*entity.Product, error)
 	FindAllPaginated(db *gorm.DB, page, limit int) ([]entity.Product, int64, error)
 	FindByIDForUpdate(db *gorm.DB, id string) (*entity.Product, error)
 	UpdateStock(db *gorm.DB, id string, delta int) error
+	FindImageByID(db *gorm.DB, id string) (*entity.ProductImage, error)
+	GetByIDWithRelations(db *gorm.DB, id string) (*entity.Product, error)
 }
 
 type productRepository struct {
@@ -30,6 +33,16 @@ func (pr *productRepository) FindBySlug(db *gorm.DB, slug string) (*entity.Produ
 	var product entity.Product
 
 	if err := pr.baseQuery(db).Where("slug = ?", slug).First(&product).Error; err != nil {
+		return nil, err
+	}
+
+	return &product, nil
+}
+
+func (pr *productRepository) FindBySlugExcludingID(db *gorm.DB, slug, id string) (*entity.Product, error) {
+	var product entity.Product
+
+	if err := pr.baseQuery(db).Where("slug = ? AND id <> ?", slug, id).First(&product).Error; err != nil {
 		return nil, err
 	}
 
@@ -68,4 +81,24 @@ func (pr *productRepository) FindByIDForUpdate(db *gorm.DB, id string) (*entity.
 func (pr *productRepository) UpdateStock(db *gorm.DB, id string, delta int) error {
 	return db.Model(new(entity.Product)).Where("id = ?", id).
 		Update("stock", gorm.Expr("stock + ?", delta)).Error
+}
+
+func (pr *productRepository) FindImageByID(db *gorm.DB, id string) (*entity.ProductImage, error) {
+	var image entity.ProductImage
+
+	if err := db.Where("id = ?", id).First(&image).Error; err != nil {
+		return nil, err
+	}
+
+	return &image, nil
+}
+
+func (pr *productRepository) GetByIDWithRelations(db *gorm.DB, id string) (*entity.Product, error) {
+	var product entity.Product
+
+	if err := pr.baseQuery(db).Where("id = ?", id).First(&product).Error; err != nil {
+		return nil, err
+	}
+
+	return &product, nil
 }
