@@ -1,21 +1,29 @@
 app:
   name: golang e commerce
-
-server:
   host: localhost
-  port: 3000
+  port: 8080
 
-postgres:
+database:
   host: localhost
   port: 5432
   user: postgres
-  password:
+  password: ""
   dbname: simple_ecommerce
   sslmode: disable
 
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  dbname: 0
+
 jwt:
-  secret_key: 
+  secret_key: ""
 
 logger:
-  level: debug
+  level: 4
   file_path: logs/app.log
+
+storage:
+  base_path: "./public"
+  public_path: "/public"

@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: warbay-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: simple_ecommerce
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d simple_ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - warbay-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: warbay-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - warbay-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: warbay-app
+    environment:
+      APP_NAME: "golang e commerce"
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "postgres"
+      DATABASE_DBNAME: "simple_ecommerce"
+      DATABASE_SSLMODE: "disable"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      REDIS_DBNAME: "0"
+      JWT_SECRET_KEY: "change-this-in-production"
+      LOGGER_LEVEL: "4"
+      LOGGER_FILE_PATH: "logs/app.log"
+      STORAGE_BASE_PATH: "./public"
+      STORAGE_PUBLIC_PATH: "/public"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./public:/app/public
+      - ./logs:/app/logs
+    networks:
+      - warbay-net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  warbay-net:
+    driver: bridge
