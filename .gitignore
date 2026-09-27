@@ -9,6 +9,7 @@
 *.db
 *.sqlite
 *.sqlite3
+.agents
 
 # compiled binary
 bin/
